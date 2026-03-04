@@ -74,7 +74,7 @@ const Auth = () => {
               <input 
                 type="text" 
                 name="fullName" 
-                placeholder="Josephine Antwi" 
+                placeholder="full name" 
                 required 
                 onChange={handleChange} 
               />
