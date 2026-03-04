@@ -1,0 +1,144 @@
+/* Base Layout */
+.behance-messages-page {
+  background: #ffffff;
+  min-height: 100vh;
+  padding-top: 80px; /* Offset for main Navbar */
+  font-family: 'Inter', sans-serif;
+}
+
+.content-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Sub-Nav Styles */
+.inbox-sub-nav {
+  border-bottom: 1px solid #eeeeee;
+  background: #fff;
+  position: sticky;
+  top: 80px;
+  z-index: 10;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 20px;
+}
+
+.filter-btn {
+  background: none;
+  border: none;
+  font-weight: 700;
+  padding: 8px 16px;
+  margin-right: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  color: #666;
+}
+
+.filter-btn.active {
+  background: #0057ff;
+  color: #fff;
+}
+
+/* Grid Design */
+.inquiry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.inquiry-card {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.inquiry-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* Prevents images from being "huge" */
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3; /* Keeps all thumbnails uniform */
+  overflow: hidden;
+  background: #f9f9f9;
+}
+
+.card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.status-overlay {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Info Section */
+.card-info {
+  padding: 20px;
+}
+
+.info-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.info-top h3 { font-size: 1.1rem; font-weight: 800; }
+
+.budget-tag {
+  color: #0057ff;
+  font-weight: 900;
+}
+
+.category-text {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #f5f5f5;
+}
+
+.view-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.interaction-icons {
+  font-size: 0.8rem;
+  color: #bbb;
+  display: flex;
+  gap: 10px;
+}

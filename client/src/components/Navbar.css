@@ -1,0 +1,186 @@
+.studio-navbar {
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  position: fixed;
+  top: 0; left: 0; z-index: 1000;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+.nav-container {
+  width: 90%; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+.brand-logo { font-size: 1.5rem; font-weight: 800; text-decoration: none; color: #000; }
+.seller-btn { color: #6366f1; border: 1.5px solid #6366f1; padding: 6px 15px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+.join-pill { background: #000; color: #fff; padding: 10px 22px; border-radius: 50px; text-decoration: none; font-weight: 700; }
+/* src/components/Navbar.css */
+
+.studio-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5%;
+  height: 80px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  position: fixed; /* Keep it at the top */
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* This creates the necessary space between buttons */
+}
+/* Navbar.css */
+.studio-navbar {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px); /* Modern glass effect */
+  border-bottom: 2px solid var(--text-main); /* High contrast border */
+}
+
+.brand-logo {
+  color: var(--text-main);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -1.5px;
+}
+
+.seller-btn {
+  color: var(--text-main);
+  border: 2px solid var(--text-main); /* Bold outline instead of thin line */
+  transition: all 0.2s ease;
+}
+
+.seller-btn:hover {
+  background: var(--text-main);
+  color: white;
+}
+
+.join-pill {
+  background: var(--accent); /* Electric blue stands out against black/white */
+  color: white !important;
+  box-shadow: 0 4px 14px rgba(0, 87, 255, 0.3);
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 25px; /* Separates Join and Sign In */
+}
+
+.join-pill {
+  background: #0057ff;
+  color: #fff !important;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login-link {
+  color: #111;
+  font-weight: 700;
+  text-decoration: none;
+}
+/* Navbar.css */
+.studio-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  height: 80px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 32px; /* Fixed spacing */
+}
+
+.login-link {
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+}
+
+.join-pill {
+  background: var(--accent-blue);
+  color: white !important;
+  padding: 10px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.studio-navbar {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fff;
+}
+
+.nav-container {
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 40px; /* Space between Logo and Links */
+}
+
+.brand-logo {
+  font-size: 24px;
+  font-weight: 900;
+  text-decoration: none;
+  color: #000;
+  letter-spacing: -1px;
+}
+
+.main-links {
+  display: flex;
+  gap: 25px; /* Fixes the ExploreHire Talent overlap */
+}
+
+.main-links a {
+  text-decoration: none;
+  color: #666;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.main-links a:hover {
+  color: #000;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.join-pill {
+  background: #0057ff;
+  color: #fff !important;
+  padding: 10px 24px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-btn {
+  text-decoration: none;
+  color: #000;
+  font-weight: 600;
+}
