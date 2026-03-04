@@ -9,73 +9,95 @@ const DesignerDashboard = () => {
   
   const [viewMode, setViewMode] = useState('gallery'); 
   const [selectedImg, setSelectedImg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  // Get current user from login session
   const currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!currentUser) navigate('/auth', { replace: true });
   }, [currentUser, navigate]);
 
-  const profileKey = `profile_${currentUser?.email}`;
-  const projectsKey = `projects_${currentUser?.email}`;
-
-  const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem(profileKey);
-    return saved ? JSON.parse(saved) : {
-      name: currentUser?.fullName || "Designer",
-      title: "Verified Pro Designer",
-      avatar: `https://ui-avatars.com/api/?name=${currentUser?.fullName}&background=0057ff&color=fff`,
-      bio: "", instagram: "", behance: ""
-    };
+  // State for Profile - Initialized with currentUser data
+  const [profile, setProfile] = useState({
+    name: currentUser?.fullName || "Designer",
+    title: "Verified Pro Designer",
+    avatar: `https://ui-avatars.com/api/?name=${currentUser?.fullName}&background=0057ff&color=fff`,
+    bio: "", 
+    instagram: "", 
+    behance: ""
   });
 
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem(projectsKey);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [projects, setProjects] = useState([]);
 
+  // FETCH: Get real data from the database on load
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem(profileKey, JSON.stringify(profile));
-      localStorage.setItem(projectsKey, JSON.stringify(projects));
-    }
-  }, [profile, projects, profileKey, projectsKey]);
+    const fetchUserData = async () => {
+      if (!currentUser) return;
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/${currentUser.id}`);
+        const data = await response.json();
+        if (data) {
+          setProfile(prev => ({ ...prev, ...data }));
+          setProjects(data.projects || []);
+        }
+      } catch (err) {
+        console.error("Database fetch failed, using local session data.");
+      }
+    };
+    fetchUserData();
+  }, []);
 
-  // --- HANDLERS ---
-  const handleAvatarChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setProfile({ ...profile, avatar: reader.result });
-      reader.readAsDataURL(file);
+  // HANDLER: Update Profile (The "Transfer to Public" Logic)
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Replace localhost with your Render URL when you deploy the server
+      const response = await fetch(`http://localhost:5000/api/users/update/${currentUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile),
+      });
+
+      if (response.ok) {
+        alert("Public Profile Updated! Everyone can see your changes now.");
+        setViewMode('gallery');
+      } else {
+        alert("Update failed. Check if your server is running.");
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+      alert("Could not connect to the server.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleProjectUpload = (e) => {
+  // HANDLER: Upload Project
+  const handleProjectUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
       const title = prompt("Enter project title:", "New Work");
       if (!title) return;
 
+      // In a real app, you'd send this File to Cloudinary/Multer
+      // For now, we use a reader for preview
       const reader = new FileReader();
       reader.onloadend = () => {
         const newProj = { 
           id: Date.now(), 
           title: title, 
           img: reader.result, 
-          views: Math.floor(Math.random() * 500), 
-          likes: Math.floor(Math.random() * 100) 
+          views: 0, 
+          likes: 0 
         };
         setProjects([newProj, ...projects]);
+        // Note: You should also add a fetch() here to save the image to the DB!
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const handleDelete = (id, e) => {
-    e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      setProjects(projects.filter(p => p.id !== id));
     }
   };
 
@@ -84,7 +106,12 @@ const DesignerDashboard = () => {
   return (
     <div className="dashboard-wrapper">
       <input type="file" ref={projectInputRef} onChange={handleProjectUpload} style={{ display: 'none' }} />
-      <input type="file" ref={avatarInputRef} onChange={handleAvatarChange} style={{ display: 'none' }} />
+      <input type="file" ref={avatarInputRef} onChange={(e) => {
+          const file = e.target.files[0];
+          const reader = new FileReader();
+          reader.onloadend = () => setProfile({ ...profile, avatar: reader.result });
+          reader.readAsDataURL(file);
+      }} style={{ display: 'none' }} />
 
       {/* Lightbox Overlay */}
       {selectedImg && (
@@ -99,7 +126,6 @@ const DesignerDashboard = () => {
         </div>
       )}
 
-      {/* Centered Profile Header */}
       <section className="dash-hero">
         <div className="avatar-wrapper" onClick={() => avatarInputRef.current.click()}>
           <img src={profile.avatar} alt="Profile" className="profile-img" />
@@ -110,7 +136,6 @@ const DesignerDashboard = () => {
           <p className="verified-badge">{profile.title}</p>
         </div>
 
-        {/* Action Navigation Container */}
         <div className="action-pill-nav">
           <button className={`nav-item ${viewMode === 'gallery' ? 'active' : ''}`} onClick={() => setViewMode('gallery')}>🖼️ Gallery</button>
           <button className="nav-item upload-btn" onClick={() => projectInputRef.current.click()}>+ Add Project</button>
@@ -123,10 +148,10 @@ const DesignerDashboard = () => {
         {viewMode === 'settings' && (
           <div className="settings-panel">
             <h3>Account Settings</h3>
-            <form onSubmit={(e) => { e.preventDefault(); setViewMode('gallery'); }}>
+            <form onSubmit={handleUpdate}>
               <div className="field-group">
                 <label>DISPLAY NAME</label>
-                <input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} />
+                <input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} required />
               </div>
               <div className="social-row">
                 <div className="field-group">
@@ -140,27 +165,34 @@ const DesignerDashboard = () => {
               </div>
               <div className="field-group">
                 <label>PROFESSIONAL BIO</label>
-                <textarea rows="3" value={profile.bio} onChange={e => setProfile({...profile, bio: e.target.value})} />
+                <textarea rows="3" value={profile.bio} placeholder="Tell the world about your style..." onChange={e => setProfile({...profile, bio: e.target.value})} />
               </div>
-              <button type="submit" className="save-action-btn">Update Profile</button>
+              <button type="submit" className="save-action-btn" disabled={loading}>
+                {loading ? "Saving..." : "Update Profile"}
+              </button>
             </form>
           </div>
         )}
 
         {viewMode === 'gallery' && (
           <div className="gallery-masonry-grid">
-            {projects.map(p => (
-              <div key={p.id} className="project-card-v2" onClick={() => setSelectedImg(p)}>
-                <div className="card-image-box">
-                  <img src={p.img} alt={p.title} />
-                  <button className="card-delete-btn" onClick={(e) => handleDelete(p.id, e)}>🗑️</button>
+            {projects.length === 0 ? <p className="empty-msg">No projects yet. Upload your first masterpiece!</p> : 
+              projects.map(p => (
+                <div key={p.id} className="project-card-v2" onClick={() => setSelectedImg(p)}>
+                  <div className="card-image-box">
+                    <img src={p.img} alt={p.title} />
+                    <button className="card-delete-btn" onClick={(e) => {
+                        e.stopPropagation();
+                        setProjects(projects.filter(proj => proj.id !== p.id));
+                    }}>🗑️</button>
+                  </div>
+                  <div className="card-details">
+                    <h4>{p.title}</h4>
+                    <div className="card-stats">👁️ {p.views} ❤️ {p.likes}</div>
+                  </div>
                 </div>
-                <div className="card-details">
-                  <h4>{p.title}</h4>
-                  <div className="card-stats">👁️ {p.views} ❤️ {p.likes}</div>
-                </div>
-              </div>
-            ))}
+              ))
+            }
           </div>
         )}
       </div>
