@@ -14,14 +14,14 @@ const DesignerProfile = () => {
     
     const fetchLiveDesignerData = async () => {
       try {
-        // REPLACE THE URL BELOW with your actual Render/Backend URL
-        const res = await fetch(`https://your-render-api.onrender.com/api/users/${id}`);
+        // Since you are on Vercel, we use a relative path or your Vercel URL
+        // This ensures the "Public Eye" talks to your Vercel Serverless Functions
+        const res = await fetch(`/api/users/${id}`);
         if (!res.ok) throw new Error("Designer not found");
         const data = await res.json();
         setDesigner(data);
       } catch (err) {
-        console.error("Database fetch failed. Using local state.");
-        // If the database fails, we check if there's data in the state
+        console.error("Database fetch failed. Ensure your MONGO_URI is in Vercel Settings.");
       } finally {
         setLoading(false);
       }
@@ -30,10 +30,10 @@ const DesignerProfile = () => {
     fetchLiveDesignerData();
   }, [id]);
 
-  if (loading) return <div className="loader">Loading {id}'s Portfolio...</div>;
-  if (!designer) return <div className="error-msg">Designer not found in the database.</div>;
+  if (loading) return <div className="loader">Loading Portfolio...</div>;
+  if (!designer) return <div className="error-msg">Profile not found. Please check your connection.</div>;
 
-  // This maps through the REAL projects uploaded in the dashboard
+  // This maps through the REAL projects uploaded by the designer in your dashboard
   const portfolioItems = designer.projects || [];
 
   return (
@@ -90,7 +90,7 @@ const DesignerProfile = () => {
         </div>
       </section>
 
-      {/* Portfolio Grid - This now shows ONLY what the designer uploaded */}
+      {/* Portfolio Grid - Shows REAL work from your MongoDB */}
       <section className="portfolio-section">
         <h2 className="grid-title">Work History & Portfolio</h2>
         <div className="massive-grid">
@@ -105,7 +105,7 @@ const DesignerProfile = () => {
               </div>
             ))
           ) : (
-            <div className="no-work-msg">This designer hasn't uploaded any work to their gallery yet.</div>
+            <div className="no-work-msg">No works uploaded to the gallery yet.</div>
           )}
         </div>
       </section>

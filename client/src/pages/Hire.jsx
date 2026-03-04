@@ -1,22 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Hire.css';
 
 const Hire = () => {
   const navigate = useNavigate();
+  const [designers, setDesigners] = useState([]); // Start with an empty list
+  const [loading, setLoading] = useState(true);
 
-  // Mock designers for the directory
-  const designers = Array.from({ length: 10 }, (_, i) => ({
-    id: i,
-    name: ["Opedia Studio", "Graphéine", "Andreas Preis", "Anagrama"][i % 4],
-    location: ["Dhaka, Bangladesh", "Paris, France", "Berlin, Germany", "Mexico City"][i % 4],
-    rate: ["$50/hr", "$85/hr", "$120/hr", "$70/hr"][i % 4],
-    tags: ["Logo Design", "Branding", "Packaging", "Web Design"]
-  }));
+  // FETCH: Get all designers from your MongoDB
+  useEffect(() => {
+    const fetchDesigners = async () => {
+      try {
+        // This relative path works on both localhost:5000 and gallery-art-beige.vercel.app
+        const res = await fetch('/api/users');
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setDesigners(data);
+      } catch (err) {
+        console.error("Could not load designers from database:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDesigners();
+  }, []);
+
+  if (loading) return <div className="loader">Finding top talent...</div>;
 
   return (
     <div className="directory-container">
-      {/* SIDEBAR FOR CATEGORIES */}
       <aside className="directory-sidebar">
         <div className="sidebar-sticky">
           <button className="new-job-btn">+ Post a Project</button>
@@ -33,53 +45,70 @@ const Hire = () => {
 
       <main className="directory-list">
         <div className="list-header">
-          <h2>Available Freelancers</h2>
+          <h2>Available Freelancers ({designers.length})</h2>
           <select className="sort-select">
             <option>Recommended</option>
             <option>Highest Rated</option>
           </select>
         </div>
 
-        {designers.map((designer) => (
-          <div 
-            key={designer.id} 
-            className="talent-row-card" 
-            onClick={() => navigate(`/designer/${designer.id}`)}
-          >
-            <div className="row-main-info">
-              <div className="row-brand">
-                <div className="squircle-logo-placeholder"></div>
-                <div className="brand-text">
-                  <h3>{designer.name} <span className="pro-badge">PRO</span></h3>
-                  <p>📍 {designer.location} • <span className="status">Available now</span></p>
+        {designers.length > 0 ? (
+          designers.map((designer) => (
+            <div 
+              key={designer._id} // MongoDB uses _id
+              className="talent-row-card" 
+              onClick={() => navigate(`/designer/${designer._id}`)}
+            >
+              <div className="row-main-info">
+                <div className="row-brand">
+                  {/* Shows real avatar if uploaded, otherwise a placeholder */}
+                  <img 
+                    src={designer.avatar || `https://ui-avatars.com/api/?name=${designer.fullName}&background=0057ff&color=fff`} 
+                    alt={designer.fullName}
+                    className="row-avatar-img"
+                  />
+                  <div className="brand-text">
+                    <h3>{designer.fullName || designer.name} <span className="pro-badge">PRO</span></h3>
+                    <p>📍 {designer.location || "Global"} • <span className="status">Available now</span></p>
+                  </div>
                 </div>
+                <button className="inquiry-btn">Send Inquiry</button>
               </div>
-              <button className="inquiry-btn">Send Inquiry</button>
-            </div>
 
-            <div className="tag-row">
-              {designer.tags.map(tag => <span key={tag} className="skill-tag">{tag}</span>)}
-            </div>
+              <div className="tag-row">
+                {/* Shows real title as a tag if available */}
+                <span className="skill-tag">{designer.title || "Graphic Designer"}</span>
+                <span className="skill-tag">Branding</span>
+              </div>
 
-            {/* CLICKABLE WORK STRIP */}
-            <div className="work-scroll-strip">
-              {[1, 2, 3, 4, 5, 6].map(img => (
-                <div key={img} className="work-thumb-box">
-                   <img src={`https://picsum.photos/seed/h${designer.id}${img}/300/200`} alt="work sample" />
-                </div>
-              ))}
+              {/* REAL WORK STRIP: Shows the designer's actual uploaded projects */}
+              <div className="work-scroll-strip">
+                {designer.projects && designer.projects.length > 0 ? (
+                  designer.projects.slice(0, 6).map((proj, idx) => (
+                    <div key={idx} className="work-thumb-box">
+                       <img src={proj.img} alt={proj.title} />
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-work-text">No portfolio projects uploaded yet.</p>
+                )}
+              </div>
+              
+              <div className="row-footer">
+                <span><strong>{designer.rate || "$40/hr"}</strong> average rate</span>
+                <span className="view-reviews">Read Reviews ❯</span>
+              </div>
             </div>
-            
-            <div className="row-footer">
-              <span><strong>{designer.rate}</strong> average rate</span>
-              <span className="view-reviews">Read Reviews ❯</span>
-            </div>
+          ))
+        ) : (
+          <div className="empty-state">
+            <h3>No designers found in the database.</h3>
+            <p>Make sure your MONGO_URI is set up in Vercel!</p>
           </div>
-        ))}
+        )}
       </main>
     </div>
   );
 };
 
-// THIS LINE FIXES THE ERROR
 export default Hire;
