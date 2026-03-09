@@ -5,7 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-
+const userRoutes = require('./routes/userRoutes'); // Import your router
 const authRoutes = require('./routes/auth');
 const artworkRoutes = require('./routes/artworks');
 

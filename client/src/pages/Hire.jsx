@@ -1,112 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Hire.css';
 
 const Hire = () => {
-  const navigate = useNavigate();
-  const [designers, setDesigners] = useState([]); // Start with an empty list
+  const [designers, setDesigners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // FETCH: Get all designers from your MongoDB
   useEffect(() => {
-    const fetchDesigners = async () => {
-      try {
-        // This relative path works on both localhost:5000 and gallery-art-beige.vercel.app
-        const res = await fetch('/api/users');
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        setDesigners(data);
-      } catch (err) {
-        console.error("Could not load designers from database:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDesigners();
   }, []);
 
-  if (loading) return <div className="loader">Finding top talent...</div>;
+  const fetchDesigners = async () => {
+    setLoading(true);
+    try {
+      // Replace 5000 with your actual backend port if different
+      const API_URL = 'http://localhost:5000/api/users';
+      console.log("Fetching from:", API_URL);
+
+      const response = await fetch(API_URL);
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setDesigners(data);
+      setError(null);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Could not connect to the database. Make sure your backend server is running on port 5000.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="directory-container">
-      <aside className="directory-sidebar">
-        <div className="sidebar-sticky">
-          <button className="new-job-btn">+ Post a Project</button>
-          <div className="filter-section">
-            <h4>Categories</h4>
-            {["Logo Design", "Branding", "Social Media", "Website Design"].map(cat => (
-              <label key={cat} className="filter-label">
-                <input type="checkbox" /> {cat}
-              </label>
-            ))}
-          </div>
+    <div className="hire-container">
+      <div className="sidebar">
+        <button className="post-project-btn">+ Post a Project</button>
+        <h3>Categories</h3>
+        <div className="filter-group">
+          <label><input type="checkbox" /> Logo Design</label>
+          <label><input type="checkbox" /> Branding</label>
+          <label><input type="checkbox" /> Social Media</label>
+          <label><input type="checkbox" /> Website Design</label>
         </div>
-      </aside>
+      </div>
 
-      <main className="directory-list">
-        <div className="list-header">
+      <div className="main-content">
+        <div className="header-row">
           <h2>Available Freelancers ({designers.length})</h2>
-          <select className="sort-select">
+          <select className="sort-dropdown">
             <option>Recommended</option>
+            <option>Newest</option>
             <option>Highest Rated</option>
           </select>
         </div>
 
-        {designers.length > 0 ? (
-          designers.map((designer) => (
-            <div 
-              key={designer._id} // MongoDB uses _id
-              className="talent-row-card" 
-              onClick={() => navigate(`/designer/${designer._id}`)}
-            >
-              <div className="row-main-info">
-                <div className="row-brand">
-                  {/* Shows real avatar if uploaded, otherwise a placeholder */}
-                  <img 
-                    src={designer.avatar || `https://ui-avatars.com/api/?name=${designer.fullName}&background=0057ff&color=fff`} 
-                    alt={designer.fullName}
-                    className="row-avatar-img"
-                  />
-                  <div className="brand-text">
-                    <h3>{designer.fullName || designer.name} <span className="pro-badge">PRO</span></h3>
-                    <p>📍 {designer.location || "Global"} • <span className="status">Available now</span></p>
+        {loading ? (
+          <div className="status-message">Loading designers...</div>
+        ) : error ? (
+          <div className="status-message error-box">
+            <p>{error}</p>
+            <small>Check your Terminal to see if the backend crashed.</small>
+          </div>
+        ) : designers.length === 0 ? (
+          <div className="status-message">
+            <h3>No designers found in the database.</h3>
+            <p>Make sure your MONGO_URI is set up and your 'users' collection isn't empty!</p>
+          </div>
+        ) : (
+          <div className="designer-grid">
+            {designers.map((designer) => (
+              <div key={designer._id} className="designer-card">
+                <img src={designer.profileImage || 'https://via.placeholder.com/150'} alt={designer.name} />
+                <div className="card-info">
+                  <h4>{designer.name}</h4>
+                  <p>{designer.specialty || 'Professional Designer'}</p>
+                  <div className="card-footer">
+                    <span>⭐ {designer.rating || '5.0'}</span>
+                    <button className="view-profile-btn">View Profile</button>
                   </div>
                 </div>
-                <button className="inquiry-btn">Send Inquiry</button>
               </div>
-
-              <div className="tag-row">
-                {/* Shows real title as a tag if available */}
-                <span className="skill-tag">{designer.title || "Graphic Designer"}</span>
-                <span className="skill-tag">Branding</span>
-              </div>
-
-              {/* REAL WORK STRIP: Shows the designer's actual uploaded projects */}
-              <div className="work-scroll-strip">
-                {designer.projects && designer.projects.length > 0 ? (
-                  designer.projects.slice(0, 6).map((proj, idx) => (
-                    <div key={idx} className="work-thumb-box">
-                       <img src={proj.img} alt={proj.title} />
-                    </div>
-                  ))
-                ) : (
-                  <p className="no-work-text">No portfolio projects uploaded yet.</p>
-                )}
-              </div>
-              
-              <div className="row-footer">
-                <span><strong>{designer.rate || "$40/hr"}</strong> average rate</span>
-                <span className="view-reviews">Read Reviews ❯</span>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="empty-state">
-            <h3>No designers found in the database.</h3>
-            <p>Make sure your MONGO_URI is set up in Vercel!</p>
+            ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 };
