@@ -26,7 +26,7 @@
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: 2px;
-    color: #fff;
+    color: #f8f4f4;
     cursor: pointer;
     transition: 0.3s;
 }
@@ -93,4 +93,12 @@
 @media (max-width: 768px) {
     .nav-container { width: 95%; }
     .nav-item { display: none; } /* Hide Explore on tiny screens */
+}
+.navbar {
+    background: rgba(10, 10, 10, 0.8) !important; /* Forces the dark background */
+    backdrop-filter: blur(15px) !important;
+}
+
+.nav-logo span {
+    color: #3b82f6 !important; /* Forces the blue 'ART' text */
 }
