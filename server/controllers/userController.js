@@ -1,16 +1,16 @@
 const User = require('../models/User');
 
-// Get all designers for Hire Page
+// FIXED: Added better error logging for Render
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({ role: 'designer' }).select('-password');
-    res.json(users);
+    res.status(200).json(users || []); 
   } catch (err) {
-    res.status(500).json({ message: "Server Error" });
+    console.error("GET ALL USERS ERROR:", err); // Look for this in Render Logs
+    res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
 
-// Upload Profile Picture
 exports.uploadAvatar = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -20,11 +20,11 @@ exports.uploadAvatar = async (req, res) => {
     ).select('-password');
     res.json(user);
   } catch (err) {
+    console.error("AVATAR UPLOAD ERROR:", err);
     res.status(500).json({ message: "Avatar upload failed" });
   }
 };
 
-// Post Art to the projects array
 exports.postArt = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -41,6 +41,7 @@ exports.postArt = async (req, res) => {
     );
     res.json(user.projects);
   } catch (err) {
+    console.error("POST ART ERROR:", err);
     res.status(500).json({ message: "Upload failed" });
   }
 };
@@ -53,7 +54,7 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: "Error" });
   }
 };
-// Update Bio
+
 exports.updateBio = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
