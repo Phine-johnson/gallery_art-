@@ -3,12 +3,12 @@ import './HirePage.css';
 
 const HirePage = () => {
     const [designers, setDesigners] = useState([]);
-    const [selectedDesigner, setSelectedDesigner] = useState(null);
-    const [previewDesigner, setPreviewDesigner] = useState(null);
-    const [activePhotoIndex, setActivePhotoIndex] = useState(null);
+    const [selectedDesigner, setSelectedDesigner] = useState(null); 
+    const [previewDesigner, setPreviewDesigner] = useState(null);   
+    const [activePhotoIndex, setActivePhotoIndex] = useState(null); 
     const [formData, setFormData] = useState({ name: '', email: '', details: '', budget: '' });
     
-    // FIXED: Removed leading space
+    // FIXED: The correct live URL for your Render backend
     const BACKEND_URL = "https://gallery-art-api.onrender.com";
 
     useEffect(() => {
@@ -18,7 +18,7 @@ const HirePage = () => {
                 return res.json();
             })
             .then(data => {
-                // FIXED: Safety check to ensure data is an array
+                // FIXED: Safety check to ensure we got an array back
                 if (Array.isArray(data)) {
                     const onlyDesigners = data.filter(user => user.role === 'designer');
                     setDesigners(onlyDesigners);
@@ -32,6 +32,7 @@ const HirePage = () => {
             });
     }, []);
 
+    // FIXED: Helper to ensure images load from Render, not localhost
     const getFullUrl = (path) => {
         if (!path) return "/default-avatar.png";
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
@@ -88,7 +89,7 @@ const HirePage = () => {
             <main className="hire-content-area">
                 <h1>Available Freelancers</h1>
                 
-                {designers.length > 0 ? designers.map(designer => (
+                {designers.map(designer => (
                     <div key={designer._id} className="pro-designer-card">
                         <div className="card-header-top">
                             <img 
@@ -135,10 +136,51 @@ const HirePage = () => {
                             )}
                         </div>
                     </div>
-                )) : <p>Loading freelancers...</p>}
+                ))}
             </main>
 
-            {/* LIGHTBOX & MODAL RENDERED HERE (same as your previous code) */}
+            {/* LIGHTBOX VIEWER */}
+            {previewDesigner && activePhotoIndex !== null && (
+                <div className="lightbox-overlay" onClick={() => setActivePhotoIndex(null)}>
+                    <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="close-lightbox" onClick={() => setActivePhotoIndex(null)}>×</button>
+                        <button className="nav-btn prev" onClick={prevPhoto} disabled={activePhotoIndex === 0}>‹</button>
+                        
+                        <div className="focused-image-wrapper">
+                            <img 
+                                src={getFullUrl(previewDesigner.projects[activePhotoIndex].img)} 
+                                alt="work" 
+                                className="portfolio-large-view"
+                            />
+                            <div className="lightbox-footer">
+                                <h3>{previewDesigner.projects[activePhotoIndex].title}</h3>
+                                <span>{activePhotoIndex + 1} / {previewDesigner.projects.length}</span>
+                            </div>
+                        </div>
+
+                        <button className="nav-btn next" onClick={nextPhoto} disabled={activePhotoIndex === previewDesigner.projects.length - 1}>›</button>
+                    </div>
+                </div>
+            )}
+
+            {/* HIRE MODAL */}
+            {selectedDesigner && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Work with {selectedDesigner.fullName}</h2>
+                        <form onSubmit={handleHireSubmit}>
+                            <input type="text" placeholder="Your Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                            <input type="email" placeholder="Your Email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                            <textarea placeholder="Project Details" required value={formData.details} onChange={e => setFormData({...formData, details: e.target.value})}></textarea>
+                            <input type="text" placeholder="Budget ($)" value={formData.budget} onChange={e => setFormData({...formData, budget: e.target.value})} />
+                            <div className="modal-btns">
+                                <button type="submit" className="send-btn">Send Proposal</button>
+                                <button type="button" className="close-btn-modal" onClick={() => setSelectedDesigner(null)}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
