@@ -1,0 +1,56 @@
+.inbox-container {
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.inbox-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: transform 0.2s;
+}
+
+.inbox-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.inbox-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.client-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.client-email {
+    color: #007bff;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.project-body {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.budget-tag {
+    display: inline-block;
+    margin-top: 10px;
+    background: #e6f4ea;
+    color: #1e7e34;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 13px;
+}

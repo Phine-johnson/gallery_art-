@@ -1,52 +1,55 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-exports.register = async (req, res, next) => {
+// REGISTER A NEW DESIGNER
+exports.register = async (req, res) => {
   try {
-    const { name, email, password, contact, socials, bio, portfolio, reviews } = req.body;
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, and password are required.' });
-    }
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({ message: 'Email already in use.' });
-    }
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({
-      name,
+    const { fullName, email, password, role } = req.body;
+
+    // Check if the email is already in use
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ message: "User already exists" });
+
+    // Hash the password securely
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create the new account
+    user = new User({
+      fullName,
       email,
       password: hashedPassword,
-      contact: contact || '',
-      socials: socials || {},
-      bio: bio || '',
-      portfolio: portfolio || [],
-      reviews: reviews || []
+      role: role || 'designer' // Defaults to designer so they show up in 'Hire'
     });
+
     await user.save();
-    res.status(201).json({ message: 'User registered successfully.' });
+
+    // Create a token so they are logged in immediately after signing up
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.status(201).json({ token, user: { id: user._id, fullName, role: user.role } });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: "Registration failed", error: err.message });
   }
 };
 
-exports.login = async (req, res, next) => {
+// LOGIN EXISTING USER
+exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ message: 'All fields are required.' });
-    }
+
+    // Find the user by email
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials.' });
-    }
+    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+
+    // Compare the provided password with the hashed one in the DB
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials.' });
-    }
-    const token = jwt.sign({ id: user._id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    // Provide a new session token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.json({ token, user: { id: user._id, fullName: user.fullName, role: user.role } });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: "Login error" });
   }
 };

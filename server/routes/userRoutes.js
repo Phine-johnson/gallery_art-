@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
-// GET all designers for the Hire page
 router.get('/', userController.getAllUsers);
+router.get('/profile', auth, userController.getProfile);
+router.post('/upload-avatar', auth, upload.single('image'), userController.uploadAvatar);
+router.post('/post-art', auth, upload.single('image'), userController.postArt);
 
-// GET single profile for Dashboard/Profile
-router.get('/:id', userController.getProfile);
-
-// UPDATE profile for Dashboard
-router.put('/update/:id', userController.updateProfile);
+// ADD THIS LINE
+router.put('/update-bio', auth, userController.updateBio); 
 
 module.exports = router;

@@ -1,112 +1,249 @@
-/* Container for the whole dashboard */
-.dashboard-container {
-    max-width: 800px;
-    margin: 50px auto;
-    padding: 40px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+.dark-dashboard {
+    background: #121212; /* Deep gallery black */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #fff;
     font-family: 'Inter', sans-serif;
 }
 
-.dashboard-container h1 {
-    font-size: 2rem;
-    color: #1a1a1a;
-    margin-bottom: 30px;
-    text-align: center;
-    font-weight: 700;
-}
-
-/* Status Messages */
-.status-msg {
-    padding: 12px;
-    border-radius: 6px;
-    margin-bottom: 20px;
-    text-align: center;
-    background: #e8f5e9;
-    color: #2e7d32;
-    font-weight: 500;
-}
-
-/* Form Layout */
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Style for all inputs and textareas */
-input, textarea {
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 50px;
     width: 100%;
-    padding: 14px 18px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background-color: #fafafa;
+    max-width: 700px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-input:focus, textarea:focus {
-    outline: none;
-    border-color: #000;
-    background-color: #fff;
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+.profile-header {
+    text-align: center;
+    margin-bottom: 40px;
 }
 
-textarea {
-    min-height: 120px;
-    resize: vertical;
+.avatar-container {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 15px;
 }
 
-/* The Submit Button */
-button[type="submit"] {
-    margin-top: 10px;
-    padding: 16px;
-    background-color: #1a1a1a;
+.round-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%; /* Perfect circle */
+    object-fit: cover;
+    border: 3px solid #3b71fe;
+    padding: 5px;
+}
+
+.edit-avatar {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #3b71fe;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.badge {
+    background: rgba(59, 113, 254, 0.2);
+    color: #3b71fe;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+}
+
+.publish-btn {
+    width: 100%;
+    padding: 15px;
+    background: #3b71fe;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
+    border-radius: 12px;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: 0.3s;
 }
 
-button[type="submit"]:hover {
-    background-color: #333;
+.publish-btn:hover {
+    background: #2a5de0;
+    transform: translateY(-2px);
+}
+.art-gallery-dashboard {
+    background: radial-gradient(circle at top right, #1a1a1a, #000);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
 }
 
-/* Grid for social links (Optional: if you want them side-by-side) */
-.social-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.glass-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 40px;
+    padding: 50px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
 }
 
-@media (max-width: 600px) {
-    .social-grid {
-        grid-template-columns: 1fr;
-    }
+.avatar-wrapper {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 20px;
 }
-.dashboard-container {
+
+.round-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #3b71fe;
+    box-shadow: 0 0 20px rgba(59, 113, 254, 0.3);
+}
+
+.upload-icon-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: #3b71fe;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.publish-form {
+    margin-top: 30px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 2rem;
+    gap: 15px;
 }
 
-form {
+.publish-form input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    color: white;
+}
+
+.publish-btn {
+    background: #3b71fe;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: bold;
+    color: white;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.publish-btn:hover {
+    background: #2a5cdb;
+    box-shadow: 0 0 15px rgba(59, 113, 254, 0.5);
+}
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.mini-post img {
     width: 100%;
-    max-width: 600px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
-input, textarea {
-    margin-bottom: 1.5rem;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9; /* Matches your current screenshot light blue tint */
-    transition: border-color 0.3s ease;
+.mini-post span {
+    font-size: 0.7rem;
+    display: block;
+    text-align: center;
 }
 
-input:focus {
-    border-color: #000;
+.bio-editor textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+}
+
+.round-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+}
+
+.change-photo-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 11px;
+    padding: 4px 0;
+    cursor: pointer;
+    border-bottom-left-radius: 60px;
+    border-bottom-right-radius: 60px;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.avatar-wrapper:hover .change-photo-label {
+    opacity: 1;
 }

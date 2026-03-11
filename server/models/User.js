@@ -5,18 +5,19 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   title: { type: String, default: "Professional Designer" },
-  avatar: { type: String }, // URL to your profile picture
-  bio: { type: String },
-  instagram: { type: String },
-  behance: { type: String },
-  // This is where your portfolio "works" live
+  avatar: { type: String, default: '' },
+ bio: { type: String, default: 'Professional Designer from Ghana' }, // Added bio field
+  role: {
+    type: String,
+    enum: ['user', 'designer', 'admin'],
+    default: 'user'
+  },
+  
   projects: [{
     title: String,
-    img: String, // URL to the image
-    views: { type: Number, default: 0 },
-    likes: { type: Number, default: 0 },
+    img: String,
     createdAt: { type: Date, default: Date.now }
   }]
-}, { timestamps: true });
+});
 
 module.exports = mongoose.model('User', userSchema);

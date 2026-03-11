@@ -2,48 +2,38 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ darkMode, setDarkMode }) => {
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('currentUser'));
+const Navbar = () => {
+    const token = localStorage.getItem('token');
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    navigate('/', { replace: true });
-  };
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('currentUser');
+        navigate('/auth');
+    };
 
-  return (
-    <nav className="studio-navbar">
-      <div className="nav-container">
-        <div className="nav-left">
-          <Link to="/" className="brand-logo">GALLERYART</Link>
-          <div className="main-links">
-            <Link to="/explore">Explore</Link>
-            
-          </div>
-        </div>
-
-        <div className="nav-right">
-          <span className="lang-code">EN</span>
-          
-          {user ? (
-            <>
-              <Link to="/dashboard" className="nav-item">Dashboard</Link>
-              <button onClick={handleLogout} className="logout-btn">Logout</button>
-            </>
-          ) : (
-            <>
-              <Link to="/auth" className="seller-btn">Become a Seller</Link>
-              <Link to="/auth" className="login-btn">Sign In</Link>
-              <Link to="/auth" className="join-pill">Join</Link>
-            </>
-          )}
-          
-          <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-        </div>
-      </div>
-    </nav>
-  );
+    return (
+        <nav className="navbar">
+            <div className="nav-container">
+                <div className="nav-logo" onClick={() => navigate('/')}>
+                    GALLERY<span>ART</span>
+                </div>
+                
+                <div className="nav-links">
+                    <Link to="/hire" className="nav-item">Explore</Link>
+                    
+                    {token ? (
+                        <>
+                            <Link to="/dashboard" className="nav-dash-btn">Dashboard Studio</Link>
+                            <button onClick={handleLogout} className="nav-logout">Logout</button>
+                        </>
+                    ) : (
+                        <Link to="/auth" className="nav-login-btn">Login / Join</Link>
+                    )}
+                </div>
+            </div>
+        </nav>
+    );
 };
+
 export default Navbar;

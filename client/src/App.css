@@ -48,3 +48,84 @@ body {
   transform: scale(1.05);
   filter: brightness(1.1);
 }
+
+/* Modern Reset */
+:root {
+  --primary-black: #000000;
+  --soft-gray: #f9f9f9;
+  --border-color: #ededed;
+}
+
+.app-main-wrapper {
+  background-color: var(--soft-gray);
+  min-height: 100vh;
+}
+
+/* Navbar Styling */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem 4rem;
+  background: white;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.nav-logo {
+  font-weight: 900;
+  font-size: 1.5rem;
+  letter-spacing: -1px;
+}
+
+/* Dashboard Card */
+.dashboard-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 2rem;
+}
+
+.settings-card {
+  background: white;
+  width: 100%;
+  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.card-header {
+  background: var(--primary-black);
+  color: white;
+  padding: 2.5rem;
+}
+
+.settings-form {
+  padding: 2.5rem;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.save-btn {
+  background: var(--primary-black);
+  color: white;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.save-btn:hover {
+  opacity: 0.8;
+}
