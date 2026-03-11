@@ -1,23 +1,31 @@
 const User = require('../models/User');
 
-// FIXED: Added better error logging for Render
+// --- GET ALL DESIGNERS ---
 exports.getAllUsers = async (req, res) => {
   try {
+    // Finds all users with the role 'designer'
     const users = await User.find({ role: 'designer' }).select('-password');
-    res.status(200).json(users || []); 
+    res.status(200).json(users || []);
   } catch (err) {
-    console.error("GET ALL USERS ERROR:", err); // Look for this in Render Logs
+    console.error("GET ALL USERS ERROR:", err);
     res.status(500).json({ message: "Server Error", error: err.message });
   }
 };
 
+// --- UPLOAD PROFILE PICTURE (AVATAR) ---
 exports.uploadAvatar = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    // FIXED: req.file.path now contains the full Cloudinary HTTPS URL
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { avatar: `/uploads/${req.file.filename}` },
+      { avatar: req.file.path }, 
       { new: true }
     ).select('-password');
+
     res.json(user);
   } catch (err) {
     console.error("AVATAR UPLOAD ERROR:", err);
@@ -25,20 +33,27 @@ exports.uploadAvatar = async (req, res) => {
   }
 };
 
+// --- POST NEW ARTWORK TO PORTFOLIO ---
 exports.postArt = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    // FIXED: Instead of a local path, we push the Cloudinary URL to the array
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { 
         $push: { 
           projects: { 
-            title: req.body.title, 
-            img: `/uploads/${req.file.filename}` 
+            title: req.body.title || "Untitled", 
+            img: req.file.path // Permanent URL from Cloudinary
           } 
         } 
       },
       { new: true }
     );
+
     res.json(user.projects);
   } catch (err) {
     console.error("POST ART ERROR:", err);
@@ -46,15 +61,18 @@ exports.postArt = async (req, res) => {
   }
 };
 
+// --- GET LOGGED-IN USER PROFILE ---
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
-    res.status(500).json({ message: "Error" });
+    res.status(500).json({ message: "Error fetching profile" });
   }
 };
 
+// --- UPDATE BIO ---
 exports.updateBio = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(
@@ -64,6 +82,6 @@ exports.updateBio = async (req, res) => {
     ).select('-password');
     res.json(user);
   } catch (err) {
-    res.status(500).json({ message: "Update failed" });
+    res.status(500).json({ message: "Bio update failed" });
   }
 };
