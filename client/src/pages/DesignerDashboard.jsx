@@ -8,7 +8,7 @@ const DesignerDashboard = () => {
     const [isEditingBio, setIsEditingBio] = useState(false);
     const [newBio, setNewBio] = useState('');
     
-    const BACKEND_URL = "http://localhost:5000";
+    const BACKEND_URL = " https://gallery-art-api.onrender.com";
     const token = localStorage.getItem('token');
 
     useEffect(() => { fetchProfile(); }, []);

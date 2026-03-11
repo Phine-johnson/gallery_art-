@@ -3,7 +3,7 @@ import './Inbox.css';
 
 const Inbox = () => {
     const [requests, setRequests] = useState([]);
-    const BACKEND_URL = "http://localhost:5000";
+    const BACKEND_URL = " https://gallery-art-api.onrender.com";
 
     useEffect(() => {
         fetch(`${BACKEND_URL}/api/users/my-requests`, {

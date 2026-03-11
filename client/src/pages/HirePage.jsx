@@ -8,7 +8,7 @@ const HirePage = () => {
     const [activePhotoIndex, setActivePhotoIndex] = useState(null); // Track specific photo in Lightbox
     const [formData, setFormData] = useState({ name: '', email: '', details: '', budget: '' });
     
-    const BACKEND_URL = "http://localhost:5000";
+    const BACKEND_URL = " https://gallery-art-api.onrender.com";
 
     // 1. Fetch designers on load
     useEffect(() => {

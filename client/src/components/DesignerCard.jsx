@@ -1,7 +1,7 @@
 import React from 'react';
 
 const DesignerCard = ({ designer }) => {
-  const IMG_URL = "http://localhost:5000";
+  const IMG_URL = " https://gallery-art-api.onrender.com";
 
   return (
     <div className="designer-card">
