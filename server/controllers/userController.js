@@ -85,3 +85,13 @@ exports.updateBio = async (req, res) => {
     res.status(500).json({ message: "Bio update failed" });
   }
 };
+// --- DELETE USER ACCOUNT ---
+exports.deleteUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Account deleted successfully" });
+  } catch (err) {
+    console.error("DELETE ERROR:", err);
+    res.status(500).json({ message: "Delete failed" });
+  }
+};
