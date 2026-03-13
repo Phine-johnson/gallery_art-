@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router(); // This defines 'router' so the error goes away
+const router = express.Router();
 
 const {
   getAllUsers,
@@ -12,15 +12,16 @@ const {
 
 const auth = require("../middleware/auth");
 
-// routes
+// Public routes
 router.get("/", getAllUsers);
-router.get("/profile", auth, getProfile);
 
-// Ensure these match your frontend fetch calls
+// Protected routes (require 'auth' middleware)
+router.get("/profile", auth, getProfile);
 router.put("/update-bio", auth, updateBio); 
 router.post("/upload-avatar", auth, uploadAvatar);
 router.post("/post-art", auth, postArt);
 
-router.delete("/:id", deleteUser);
+// Admin/System routes
+router.delete("/:id", auth, deleteUser); // Added auth for security
 
 module.exports = router;
