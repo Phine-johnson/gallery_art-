@@ -3,12 +3,12 @@ import './HirePage.css';
 
 const HirePage = () => {
     const [designers, setDesigners] = useState([]);
-    const [selectedDesigner, setSelectedDesigner] = useState(null); 
-    const [previewDesigner, setPreviewDesigner] = useState(null);   
-    const [activePhotoIndex, setActivePhotoIndex] = useState(null); 
+    const [artworks, setArtworks] = useState([]);
+    const [selectedDesigner, setSelectedDesigner] = useState(null);
+    const [previewDesigner, setPreviewDesigner] = useState(null);
+    const [activePhotoIndex, setActivePhotoIndex] = useState(null);
     const [formData, setFormData] = useState({ name: '', email: '', details: '', budget: '' });
-    
-    // Ensure this matches your Render URL exactly
+
     const BACKEND_URL = "https://gallery-art-api.onrender.com";
 
     useEffect(() => {
@@ -17,9 +17,7 @@ const HirePage = () => {
                 const res = await fetch(`${BACKEND_URL}/api/users`);
                 if (!res.ok) throw new Error(`Server error: ${res.status}`);
                 const data = await res.json();
-                
                 if (Array.isArray(data)) {
-                    // Filter to show only designers and skip incomplete profiles
                     const onlyDesigners = data.filter(user => user.role === 'designer');
                     setDesigners(onlyDesigners);
                 }
@@ -27,29 +25,46 @@ const HirePage = () => {
                 console.error("Fetch error:", err);
             }
         };
+
+        const fetchArtworks = async () => {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/artworks`);
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                setArtworks(data);
+            } catch (err) {
+                console.error("Fetch artworks error:", err);
+            }
+        };
+
         fetchDesigners();
+        fetchArtworks();
     }, []);
 
-    // Logic to handle Cloudinary URLs vs Legacy Local Paths
     const getDisplayUrl = (path) => {
         if (!path) return "/default-avatar.png";
-        if (path.startsWith('http')) return path; // Use Cloudinary link directly
+        if (path.startsWith('http')) return path;
         return `${BACKEND_URL}${path.startsWith('/') ? path : `/${path}`}`;
     };
 
+    const getDesignerArtworks = (designerId) => {
+        return artworks.filter(art =>
+            art.createdBy === designerId ||
+            art.createdBy?._id === designerId
+        );
+    };
+
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this account? This cannot be undone.")) return;
-        
+        if (!window.confirm("Are you sure you want to delete this account?")) return;
         try {
             const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {
                 method: 'DELETE',
             });
-
             if (res.ok) {
                 setDesigners(prev => prev.filter(d => d._id !== id));
                 alert("Account deleted successfully.");
             } else {
-                alert("Failed to delete. Make sure the backend route is ready.");
+                alert("Failed to delete.");
             }
         } catch (err) {
             console.error("Delete error:", err);
@@ -70,15 +85,15 @@ const HirePage = () => {
 
             <main className="hire-content-area">
                 <h1>Available Freelancers</h1>
-                
+
                 <div className="designers-list">
                     {designers.length > 0 ? designers.map(designer => (
                         <div key={designer._id} className="pro-designer-card">
                             <div className="card-header-top">
-                                <img 
-                                    src={getDisplayUrl(designer.avatar)} 
-                                    className="designer-avatar-main" 
-                                    alt="profile" 
+                                <img
+                                    src={getDisplayUrl(designer.avatar)}
+                                    className="designer-avatar-main"
+                                    alt="profile"
                                     onError={(e) => { e.target.src = "/default-avatar.png"; }}
                                 />
                                 <div className="designer-details">
@@ -90,9 +105,8 @@ const HirePage = () => {
                                             {designer.fullName || designer.name}
                                         </h2>
                                         <span className="pro-badge">PRO</span>
-                                        {/* DELETE BUTTON */}
-                                        <button 
-                                            onClick={() => handleDelete(designer._id)} 
+                                        <button
+                                            onClick={() => handleDelete(designer._id)}
                                             className="delete-account-btn"
                                             title="Delete Account"
                                         >
@@ -108,19 +122,23 @@ const HirePage = () => {
                             </div>
 
                             <div className="horizontal-gallery">
-                                {designer.projects?.map((project, index) => (
-                                    <img 
-                                        key={index} 
-                                        src={getDisplayUrl(project.img)} 
-                                        className="gallery-img-large clickable-img" 
-                                        alt="work"
-                                        onClick={() => {
-                                            setPreviewDesigner(designer);
-                                            setActivePhotoIndex(index);
-                                        }}
-                                        onError={(e) => { e.target.style.display = 'none'; }}
-                                    />
-                                ))}
+                                {getDesignerArtworks(designer._id).length > 0 ? (
+                                    getDesignerArtworks(designer._id).map((art, index) => (
+                                        <img
+                                            key={index}
+                                            src={art.imageUrl}
+                                            className="gallery-img-large clickable-img"
+                                            alt={art.title}
+                                            onClick={() => {
+                                                setPreviewDesigner(designer);
+                                                setActivePhotoIndex(index);
+                                            }}
+                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="no-work">No work posted yet.</p>
+                                )}
                             </div>
                         </div>
                     )) : (
@@ -128,6 +146,59 @@ const HirePage = () => {
                     )}
                 </div>
             </main>
+
+            {/* Hire Form Modal */}
+            {selectedDesigner && (
+                <div className="modal-overlay" onClick={() => setSelectedDesigner(null)}>
+                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                        <h2>Hire {selectedDesigner.fullName}</h2>
+                        <input
+                            type="text"
+                            placeholder="Your Name"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
+                        <input
+                            type="email"
+                            placeholder="Your Email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
+                        <textarea
+                            placeholder="Project Details"
+                            value={formData.details}
+                            onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Budget (e.g. $500)"
+                            value={formData.budget}
+                            onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                        />
+                        <div className="modal-btns">
+                            <button className="send-btn">Send Request</button>
+                            <button className="cancel-btn" onClick={() => setSelectedDesigner(null)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Preview Modal */}
+            {previewDesigner && (
+                <div className="modal-overlay" onClick={() => setPreviewDesigner(null)}>
+                    <div className="preview-modal" onClick={(e) => e.stopPropagation()}>
+                        <h2>{previewDesigner.fullName}</h2>
+                        {getDesignerArtworks(previewDesigner._id).length > 0 && (
+                            <img
+                                src={getDesignerArtworks(previewDesigner._id)[activePhotoIndex || 0]?.imageUrl}
+                                alt="preview"
+                                className="preview-img"
+                            />
+                        )}
+                        <button onClick={() => setPreviewDesigner(null)}>Close</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
