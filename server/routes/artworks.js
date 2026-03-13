@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../middleware/upload'); // Cloudinary multer
+const upload = require('../middleware/upload');
 const { getArtworks, createArtwork, deleteArtwork, likeArtwork } = require('../controllers/artworkController');
 const auth = require('../middleware/auth');
 

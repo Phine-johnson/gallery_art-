@@ -1,45 +1,39 @@
 const Artwork = require('../models/Artwork');
-const User = require('../models/User');
 
-exports.getArtworks = async (req, res, next) => {
+exports.getArtworks = async (req, res) => {
   try {
     const { title, category } = req.query;
     let filter = {};
     if (title) filter.title = { $regex: title, $options: 'i' };
     if (category) filter.category = category;
-    const artworks = await Artwork.find(filter).populate('createdBy', 'name');
+    const artworks = await Artwork.find(filter).populate('createdBy', 'name fullName avatar');
     res.json(artworks);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-exports.createArtwork = async (req, res, next) => {
+exports.createArtwork = async (req, res) => {
   try {
     const { title, description, category } = req.body;
     if (!req.file) return res.status(400).json({ message: 'Image is required.' });
-    if (!title || !description || !category) {
-      return res.status(400).json({ message: 'All fields are required.' });
-    }
-
-    // Use Cloudinary URL instead of local path
-    const imageUrl = req.file.path;
+    if (!title) return res.status(400).json({ message: 'Title is required.' });
 
     const artwork = new Artwork({
       title,
-      description,
-      category,
-      imageUrl,
+      description: description || '',
+      category: category || 'general',
+      imageUrl: req.file.path,
       createdBy: req.user.id,
     });
     await artwork.save();
     res.status(201).json(artwork);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-exports.deleteArtwork = async (req, res, next) => {
+exports.deleteArtwork = async (req, res) => {
   try {
     const artwork = await Artwork.findById(req.params.id);
     if (!artwork) return res.status(404).json({ message: 'Artwork not found.' });
@@ -49,11 +43,11 @@ exports.deleteArtwork = async (req, res, next) => {
     await artwork.deleteOne();
     res.json({ message: 'Artwork deleted.' });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-exports.likeArtwork = async (req, res, next) => {
+exports.likeArtwork = async (req, res) => {
   try {
     const artwork = await Artwork.findById(req.params.id);
     if (!artwork) return res.status(404).json({ message: 'Artwork not found.' });
@@ -67,6 +61,6 @@ exports.likeArtwork = async (req, res, next) => {
     await artwork.save();
     res.json({ likes: artwork.likes.length });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
