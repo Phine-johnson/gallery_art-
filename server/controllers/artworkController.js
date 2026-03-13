@@ -1,6 +1,5 @@
 const Artwork = require('../models/Artwork');
 const User = require('../models/User');
-const path = require('path');
 
 exports.getArtworks = async (req, res, next) => {
   try {
@@ -22,7 +21,10 @@ exports.createArtwork = async (req, res, next) => {
     if (!title || !description || !category) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
-    const imageUrl = `/uploads/${req.file.filename}`;
+
+    // Use Cloudinary URL instead of local path
+    const imageUrl = req.file.path;
+
     const artwork = new Artwork({
       title,
       description,
