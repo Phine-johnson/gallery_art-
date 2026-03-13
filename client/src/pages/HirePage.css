@@ -186,3 +186,23 @@
     font-size: 1.5rem;
     color: #111;
 }
+.delete-account-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-left: 10px;
+    opacity: 0.3;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.delete-account-btn:hover {
+    opacity: 1;
+    color: #ff4d4d;
+    transform: scale(1.1);
+}
+
+.name-row {
+    display: flex;
+    align-items: center;
+}

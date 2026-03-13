@@ -8,69 +8,51 @@ const HirePage = () => {
     const [activePhotoIndex, setActivePhotoIndex] = useState(null); 
     const [formData, setFormData] = useState({ name: '', email: '', details: '', budget: '' });
     
-    // FIXED: The correct live URL for your Render backend
+    // Ensure this matches your Render URL exactly
     const BACKEND_URL = "https://gallery-art-api.onrender.com";
 
     useEffect(() => {
-        fetch(`${BACKEND_URL}/api/users`)
-            .then(res => {
-                if (!res.ok) throw new Error('Server error');
-                return res.json();
-            })
-            .then(data => {
-                // FIXED: Safety check to ensure we got an array back
+        const fetchDesigners = async () => {
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/users`);
+                if (!res.ok) throw new Error(`Server error: ${res.status}`);
+                const data = await res.json();
+                
                 if (Array.isArray(data)) {
+                    // Filter to show only designers and skip incomplete profiles
                     const onlyDesigners = data.filter(user => user.role === 'designer');
                     setDesigners(onlyDesigners);
-                } else {
-                    setDesigners([]);
                 }
-            })
-            .catch(err => {
-                console.error("Server connection error:", err);
-                setDesigners([]);
-            });
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        };
+        fetchDesigners();
     }, []);
 
-    // FIXED: Helper to ensure images load from Render, not localhost
-    const getFullUrl = (path) => {
+    // Logic to handle Cloudinary URLs vs Legacy Local Paths
+    const getDisplayUrl = (path) => {
         if (!path) return "/default-avatar.png";
-        const cleanPath = path.startsWith('/') ? path : `/${path}`;
-        return `${BACKEND_URL}${cleanPath}`;
+        if (path.startsWith('http')) return path; // Use Cloudinary link directly
+        return `${BACKEND_URL}${path.startsWith('/') ? path : `/${path}`}`;
     };
 
-    const nextPhoto = (e) => {
-        e.stopPropagation();
-        if (activePhotoIndex < previewDesigner.projects.length - 1) {
-            setActivePhotoIndex(activePhotoIndex + 1);
-        }
-    };
-
-    const prevPhoto = (e) => {
-        e.stopPropagation();
-        if (activePhotoIndex > 0) {
-            setActivePhotoIndex(activePhotoIndex - 1);
-        }
-    };
-
-    const handleHireSubmit = async (e) => {
-        e.preventDefault();
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this account? This cannot be undone.")) return;
+        
         try {
-            const res = await fetch(`${BACKEND_URL}/api/users/hire`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    designerId: selectedDesigner._id,
-                    ...formData
-                })
+            const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {
+                method: 'DELETE',
             });
+
             if (res.ok) {
-                alert(`Proposal sent to ${selectedDesigner.fullName}!`);
-                setSelectedDesigner(null);
-                setFormData({ name: '', email: '', details: '', budget: '' });
+                setDesigners(prev => prev.filter(d => d._id !== id));
+                alert("Account deleted successfully.");
+            } else {
+                alert("Failed to delete. Make sure the backend route is ready.");
             }
         } catch (err) {
-            alert("Failed to send proposal.");
+            console.error("Delete error:", err);
         }
     };
 
@@ -82,105 +64,70 @@ const HirePage = () => {
                     <h3>Categories</h3>
                     <label><input type="checkbox" /> UI/UX Design</label>
                     <label><input type="checkbox" /> Branding</label>
-                    <label><input type="checkbox" /> Website Development</label>
+                    <label><input type="checkbox" /> Illustration</label>
                 </div>
             </aside>
 
             <main className="hire-content-area">
                 <h1>Available Freelancers</h1>
                 
-                {designers.map(designer => (
-                    <div key={designer._id} className="pro-designer-card">
-                        <div className="card-header-top">
-                            <img 
-                                src={getFullUrl(designer.avatar)} 
-                                className="designer-avatar-main" 
-                                alt="profile" 
-                                onError={(e) => { e.target.src = "/default-avatar.png"; }}
-                            />
-                            <div className="designer-details">
-                                <div className="name-row">
-                                    <h2 className="clickable-name" onClick={() => {
-                                        setPreviewDesigner(designer);
-                                        setActivePhotoIndex(0);
-                                    }}>
-                                        {designer.fullName}
-                                    </h2>
-                                    <span className="pro-badge">PRO</span>
+                <div className="designers-list">
+                    {designers.length > 0 ? designers.map(designer => (
+                        <div key={designer._id} className="pro-designer-card">
+                            <div className="card-header-top">
+                                <img 
+                                    src={getDisplayUrl(designer.avatar)} 
+                                    className="designer-avatar-main" 
+                                    alt="profile" 
+                                    onError={(e) => { e.target.src = "/default-avatar.png"; }}
+                                />
+                                <div className="designer-details">
+                                    <div className="name-row">
+                                        <h2 className="clickable-name" onClick={() => {
+                                            setPreviewDesigner(designer);
+                                            setActivePhotoIndex(0);
+                                        }}>
+                                            {designer.fullName || designer.name}
+                                        </h2>
+                                        <span className="pro-badge">PRO</span>
+                                        {/* DELETE BUTTON */}
+                                        <button 
+                                            onClick={() => handleDelete(designer._id)} 
+                                            className="delete-account-btn"
+                                            title="Delete Account"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                    <p className="location-info">📍 Ghana • <span className="avail">Available</span></p>
+                                    <p className="designer-bio">{designer.bio || "Creative professional in Ghana."}</p>
+                                    <button className="hire-me-btn" onClick={() => setSelectedDesigner(designer)}>
+                                        Hire Me
+                                    </button>
                                 </div>
-                                <p className="location-info">📍 Ghana • <span className="avail">Available</span></p>
-                                <p className="designer-bio">{designer.bio || "No bio provided."}</p>
-
-                                <button className="hire-me-btn" onClick={() => setSelectedDesigner(designer)}>
-                                    Hire Me
-                                </button>
                             </div>
-                        </div>
 
-                        <div className="horizontal-gallery">
-                            {designer.projects && designer.projects.length > 0 ? (
-                                designer.projects.map((project, index) => (
+                            <div className="horizontal-gallery">
+                                {designer.projects?.map((project, index) => (
                                     <img 
                                         key={index} 
-                                        src={getFullUrl(project.img)} 
+                                        src={getDisplayUrl(project.img)} 
                                         className="gallery-img-large clickable-img" 
-                                        alt={project.title} 
+                                        alt="work"
                                         onClick={() => {
                                             setPreviewDesigner(designer);
                                             setActivePhotoIndex(index);
                                         }}
+                                        onError={(e) => { e.target.style.display = 'none'; }}
                                     />
-                                ))
-                            ) : (
-                                <p className="no-work-msg">No work uploaded yet.</p>
-                            )}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    )) : (
+                        <p>Loading designers from Ghana...</p>
+                    )}
+                </div>
             </main>
-
-            {/* LIGHTBOX VIEWER */}
-            {previewDesigner && activePhotoIndex !== null && (
-                <div className="lightbox-overlay" onClick={() => setActivePhotoIndex(null)}>
-                    <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="close-lightbox" onClick={() => setActivePhotoIndex(null)}>×</button>
-                        <button className="nav-btn prev" onClick={prevPhoto} disabled={activePhotoIndex === 0}>‹</button>
-                        
-                        <div className="focused-image-wrapper">
-                            <img 
-                                src={getFullUrl(previewDesigner.projects[activePhotoIndex].img)} 
-                                alt="work" 
-                                className="portfolio-large-view"
-                            />
-                            <div className="lightbox-footer">
-                                <h3>{previewDesigner.projects[activePhotoIndex].title}</h3>
-                                <span>{activePhotoIndex + 1} / {previewDesigner.projects.length}</span>
-                            </div>
-                        </div>
-
-                        <button className="nav-btn next" onClick={nextPhoto} disabled={activePhotoIndex === previewDesigner.projects.length - 1}>›</button>
-                    </div>
-                </div>
-            )}
-
-            {/* HIRE MODAL */}
-            {selectedDesigner && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>Work with {selectedDesigner.fullName}</h2>
-                        <form onSubmit={handleHireSubmit}>
-                            <input type="text" placeholder="Your Name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                            <input type="email" placeholder="Your Email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                            <textarea placeholder="Project Details" required value={formData.details} onChange={e => setFormData({...formData, details: e.target.value})}></textarea>
-                            <input type="text" placeholder="Budget ($)" value={formData.budget} onChange={e => setFormData({...formData, budget: e.target.value})} />
-                            <div className="modal-btns">
-                                <button type="submit" className="send-btn">Send Proposal</button>
-                                <button type="button" className="close-btn-modal" onClick={() => setSelectedDesigner(null)}>Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
